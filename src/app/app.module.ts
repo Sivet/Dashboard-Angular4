@@ -10,12 +10,14 @@ import { ControlsidebarComponent } from './components/controlsidebar/controlside
 
 import { WidgetLibraryService } from './services/widgetLibrary-service/widget-library.service';
 import { WidgetHostDirective } from './directives/widget-host.directive';
+import { UserService } from './services/user-service/user.service';
+import { DashboardcontrollerService } from "./services/dashboardcontroller-service/dashboardcontroller.service";
 import { GmapService } from './components/widgets/stationskort/gmap.service';
 
 import { TestboxComponent } from './components/widgets/testbox/testbox.component';
 import { StationskortComponent } from './components/widgets/stationskort/stationskort.component';
 
-
+import {HttpModule} from '@angular/http';
 
 @NgModule({
   declarations: [
@@ -29,13 +31,14 @@ import { StationskortComponent } from './components/widgets/stationskort/station
     WidgetHostDirective,
     //Dynamic Widgets----->
     TestboxComponent,
-    StationskortComponent
+    StationskortComponent,
   ],
   imports: [
-    BrowserModule
+    BrowserModule,
+    HttpModule
   ],
   entryComponents: [TestboxComponent, StationskortComponent], //<--- Dynamic Components resgiter here
-  providers: [WidgetLibraryService, GmapService],
+  providers: [WidgetLibraryService, UserService, DashboardcontrollerService, GmapService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
