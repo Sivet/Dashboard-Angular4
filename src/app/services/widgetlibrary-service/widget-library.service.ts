@@ -1,41 +1,39 @@
-import { Injectable } from '@angular/core';
+import { Injectable, CompilerFactory, Compiler } from '@angular/core';
 import { WidgetItem } from './widget-item';
 
-//Component Import - Add here when you register component ---------->
-import { TestboxComponent } from './../../components/widgets/testbox/testbox.component';
-import { StationskortComponent } from './../../components/widgets/stationskort/stationskort.component';
-import { SpeedAverageHeatmapComponent } from './../../components/widgets/speed-average-heatmap/speed-average-heatmap.component';
-//<------------------------------------------------------------------
+import {WidgetsModule} from '../../widgets/widgets.module';
 
 @Injectable()
 export class WidgetLibraryService {
-  widgets: WidgetItem[];
+  private widgets: Map<number, WidgetItem>;
+  private compiler: Compiler;
 
-  constructor() {
-    //init the array
-    this.widgets = [];
+  constructor(cFactory: CompilerFactory) {
+    this.widgets = new Map<number, WidgetItem>();
+
     //Register all widgets here
-    this.widgets.push(new WidgetItem(TestboxComponent, 1, 'Test Boks'));
-    this.widgets.push(new WidgetItem(StationskortComponent, 2, 'Stationskort'));
-    this.widgets.push(new WidgetItem(SpeedAverageHeatmapComponent, 3, "SpeedAverageHeatmapComponent"))
-    //--------> Add more here
+    this.compiler = cFactory.createCompiler();
+    
+      let fac = this.compiler.compileModuleAndAllComponentsSync(WidgetsModule);
+      
+      fac.componentFactories.forEach((facto) => {
+        let title = facto.inputs.find((obj) => {return obj.propName === "title"});
+        let i = (facto.inputs.find((obj) => {return obj.propName === "id"}));
 
-    //Sort array based on title name
-    this.widgets.sort(function (a, b) {
-      var nameA = a.title.toUpperCase();
-      var nameB = b.title.toUpperCase();
-      if (nameA < nameB) {
-        return -1;
-      }
-      if (nameA > nameB) {
-        return 1;
-      }
-      //same names
-      return 0;
-    });
+        if (title) {
+          let id = Number.parseInt(i.templateName);
+          let wItem = new WidgetItem(facto, id, title.templateName);
+          this.widgets.set(id, wItem);
+        }
+      });
+      console.log("generated widgets");
   }
 
   public getWidgetbyId(widgetId: number): WidgetItem {
-    return this.widgets.find(w => w.id == widgetId);
+    return this.widgets.get(widgetId);
+  }
+
+  public getWidgetIds(): Array<number>{
+    return Array.from(this.widgets.keys());
   }
 }

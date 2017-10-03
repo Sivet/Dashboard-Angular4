@@ -1,10 +1,9 @@
-import { Component, ViewChild, OnInit, ComponentFactoryResolver } from '@angular/core';
+import { Component, ViewChild, OnInit } from '@angular/core';
 import { WidgetItem } from './../../services/widgetlibrary-service/widget-item';
 import { WidgetComponent } from './../../services/widgetLibrary-service/widget.component';
 import { WidgetHostDirective } from './../../directives/widget-host.directive';
 import { WidgetLibraryService } from '../../services/widgetLibrary-service/widget-library.service';
 import { DashboardcontrollerService } from "../../services/dashboardcontroller-service/dashboardcontroller.service";
-import { DashboardType } from "../../services/helperClasses/dashboard";
 
 @Component({
   selector: 'app-widgetarea',
@@ -20,8 +19,7 @@ export class WidgetareaComponent implements OnInit {
 
   constructor(
     private widgetService: WidgetLibraryService,
-    private dashboardController: DashboardcontrollerService,
-    private componentFactoryResolver: ComponentFactoryResolver) {
+    private dashboardController: DashboardcontrollerService) {
 
     //Set type of dashboard
     let activeDashboard = this.dashboardController.getActiveDashboard();
@@ -51,18 +49,18 @@ export class WidgetareaComponent implements OnInit {
 
     //Get Widget
     let widget: WidgetItem = this.widgetService.getWidgetbyId(widgetId);
-    
-    //Resolve component
-    let componentFactory = this.componentFactoryResolver.resolveComponentFactory(widget.component);
-    let viewContainerRef = this.widgetHost.viewContainerRef;
+    if(widget){
+      //Resolve component
+      let viewContainerRef = this.widgetHost.viewContainerRef;
 
-    //Create component into DOM and set values.
-    let componentRef = viewContainerRef.createComponent(componentFactory);
-    (<WidgetComponent>componentRef.instance).id = widget.id;
-    (<WidgetComponent>componentRef.instance).title = widget.title;
+      //Create component into DOM and set values.
+      let componentRef = viewContainerRef.createComponent(widget.factory);
+      (<WidgetComponent>componentRef.instance).id = widget.id;
+      (<WidgetComponent>componentRef.instance).title = widget.title;
 
-    //Add to active Widgets list
-    this.activeWidgets.push(widget.id);
+      //Add to active Widgets list
+      this.activeWidgets.push(widget.id);
+      }    
   }
 
   private removeWidget(widgetId: number) {
@@ -110,7 +108,7 @@ export class WidgetareaComponent implements OnInit {
   }
 
   //Sets contentHeader and numCols variables according to dashboardtype
-  private setContentVariables(type: DashboardType) {
+  private setContentVariables(type: number) {
     if(type == 1){
       this.contentHeader = false;
       this.numCols = 1;

@@ -1,3 +1,4 @@
+import { element } from 'protractor';
 import { Component } from '@angular/core';
 import { WidgetLibraryService } from '../../services/widgetLibrary-service/widget-library.service';
 import { DashboardcontrollerService } from "../../services/dashboardcontroller-service/dashboardcontroller.service";
@@ -50,11 +51,17 @@ export class SidemenuComponent {
 
   listAllWidgets() {
     //Convert all widgets to MenuElements from WidgetLibrary
-    for (var index = 0; index < this.widgetService.widgets.length; index++) {
+    for(let key of this.widgetService.getWidgetIds()) {
+      let w = this.widgetService.getWidgetbyId(key);
       let element = new MenuElement(
-        this.widgetService.widgets[index].id,
+        w.id,
         false, false,
-        this.widgetService.widgets[index].title);
+        w.title);
+
+      //Rezise name to max 20 letters
+      if (element.titel.length > 20) {
+        element.titel = element.titel.slice(0, 20) + "...";
+      }
       //Add to allWidgets
       this.allWidgets.push(element);
     }
@@ -66,6 +73,10 @@ export class SidemenuComponent {
       let menuElement = new MenuElement(
         dashboard.id, true, false, dashboard.name
       );
+      //Rezise name to max 20 letters
+      if (menuElement.titel.length > 20) {
+        menuElement.titel = menuElement.titel.slice(0, 20) + "...";
+      }
       this.dashboards.push(menuElement);
     });
   }
@@ -87,9 +98,18 @@ export class SidemenuComponent {
       //generates and menuelement for each widget and pushes into list.
       widgets.forEach(widgetId => {
         let widget = this.widgetService.getWidgetbyId(widgetId);
-        let menuElement = new MenuElement(
-          widget.id, true, true, widget.title);
-        this.activeWidgets.push(menuElement);
+        
+        if(widget){
+          let element = new MenuElement(
+            widget.id, true, true, widget.title);
+  
+          //Rezise name to max 20 letters
+          if (element.titel.length > 20) {
+            element.titel = element.titel.slice(0, 20) + "...";
+          }
+          this.activeWidgets.push(element);
+        }
+        
       })
     }
   }
